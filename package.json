@@ -1,0 +1,37 @@
+{
+  "name": "medigen",
+  "version": "1.0.0",
+  "description": "A Medical & Diagnostic Management App",
+  "main": "app.ts",
+  "scripts": {
+    "start": "nodemon app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "medical"
+  ],
+  "author": "rehan mohiuddin",
+  "license": "ISC",
+  "dependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "connect-redis": "^7.1.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "nodemailer": "^6.9.4",
+    "nodemon": "^3.0.1",
+    "pg": "^8.11.3",
+    "redis": "^4.6.8",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/express-session": "^1.17.7",
+    "@types/node": "^20.5.6",
+    "@types/nodemailer": "^6.4.9"
+  }
+}
