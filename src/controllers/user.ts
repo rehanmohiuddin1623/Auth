@@ -35,18 +35,20 @@ export const register = async (req: Request, res: Response) => {
             designation,
             password: hashedPassword
         }), { EX: 60 * 60 })
-        await mailer.sendMail({
-            from: process.env.EMAIL,
-            to: email,
-            subject: "[IMP] Verify Your Email @Medigen",
-            sender: "Medigen",
-            html: `
-            <h3>Hi ${firstName} </h3>
-            <a href="http://localhost:3000/user/verify?token=${redisKey}&email=${email}" >Verify</a>
-            `
-        })
+        // await mailer.sendMail({
+        //     from: process.env.EMAIL,
+        //     to: email,
+        //     subject: "[IMP] Verify Your Email @Medigen",
+        //     sender: "Medigen",
+        //     html: `
+        //     <h3>Hi ${firstName} </h3>
+        //     <a href="http://localhost:3000/user/verify?token=${redisKey}&email=${email}" >Verify</a>
+        //     `
+        // })
         res.send({
-            message: "SingUp SuccessFull Pls Check Your Mail"
+            message: "SingUp SuccessFull Pls Check Your Mail",
+            email,
+            token: redisKey
         })
     }
     catch (e: unknown) {
@@ -57,7 +59,7 @@ export const register = async (req: Request, res: Response) => {
     }
 }
 
-export const verifyUser = async (req: Request<null, null | { error: string }, null, { token: string, email: string }>, res: Response) => {
+export const verifyUser = async (req: any, res: Response) => {
     try {
         const { token, email } = req.query
         const val = await redisClient.get(token)
@@ -87,4 +89,45 @@ export const verifyUser = async (req: Request<null, null | { error: string }, nu
             error: err
         })
     }
+}
+
+export const login = async (req: Request<null, null | { error: string }, { email: string, password: string }, null>, res: Response) => {
+    try {
+        const sess: any = req.session
+        const { email, password } = req.body
+        const user = await dataBase.getRepository(User).findOne({
+            where: { email: email }
+        })
+
+        if (!user) {
+            throw new Error("No User Exists")
+        }
+        if (!user.isVerified) {
+            throw new Error("Email Not Verified")
+        }
+        const isPasswordCorrect = await bcrypt.compare(password, user.password)
+        // console.log("pass",re)
+        if (!isPasswordCorrect) {
+            throw new Error("Password Is Incorrect")
+        }
+        //@ts-ignore
+        sess.email = email
+        //@ts-ignore
+        sess.password = user.password
+        sess.user_id = user.user_id
+        const key = await redisClient.KEYS("*")
+        console.log("Key", user.user_id)
+
+        res.status(200).send({
+            message: `Login Success ${sess.email} ${sess?.password}`
+        })
+
+    }
+    catch (e: unknown) {
+        const err = handleError(e)
+        res.send({
+            error: err
+        })
+    }
+
 }
